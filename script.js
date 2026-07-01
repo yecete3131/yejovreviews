@@ -1,89 +1,39 @@
-const params =
-new URLSearchParams(window.location.search);
+const params = new URLSearchParams(window.location.search);
+
+const business = params.get("business") || "demo";
 
 
-const business =
-params.get("business") || "demo";
-
-
-fetch("businesses.json")
-
-.then(response=>response.json())
-
-.then(data=>{
-
-
-const b=data[business];
-if(!b){
- document.getElementById("businessName").innerText="Business not found";
- throw new Error("Business missing");
-}
-
-document.getElementById("businessName").innerHTML=b.name;
-
-
-document.getElementById("tagline").innerHTML=b.tagline;
-
-
-document.getElementById("logo").src=b.logo;
-
-
-document.getElementById("google").href=b.google;
-
-
-document.getElementById("instagram").href=b.instagram;
-
-
-document.getElementById("facebook").href=b.facebook;
-
-
-document.getElementById("website").href=b.website;
-
-
-document.getElementById("whatsapp").href=b.whatsapp;
-
-
-
-});
-const params =
-new URLSearchParams(window.location.search);
-
-
-const business =
-params.get("business") || "demo";
-
-
-fetch("businesses.json")
-
-.then(res => res.json())
-
+fetch("./businesses.json")
+.then(response => response.json())
 .then(data => {
 
+    console.log(data);
 
-const b = data[business];
-
-
-document.getElementById("businessName").innerText = b.name;
-
-document.getElementById("tagline").innerText = b.tagline;
+    const b = data[business];
 
 
-document.getElementById("google").href = b.google;
+    document.getElementById("businessName").innerText = b.name;
 
-document.getElementById("instagram").href = b.instagram;
+    document.getElementById("tagline").innerText = b.tagline;
 
-document.getElementById("facebook").href = b.facebook;
+    document.getElementById("google").href = b.google;
 
-document.getElementById("website").href = b.website;
+    document.getElementById("instagram").href = b.instagram;
 
-document.getElementById("whatsapp").href = b.whatsapp;
+    document.getElementById("facebook").href = b.facebook;
+
+    document.getElementById("website").href = b.website;
+
+    document.getElementById("whatsapp").href = b.whatsapp;
 
 
 })
-.catch(error=>{
+.catch(error => {
 
-document.getElementById("businessName").innerText="YeJovReviews";
+document.getElementById("businessName").innerText =
+"ERROR";
 
-document.getElementById("tagline").innerText="Setup error";
+document.getElementById("tagline").innerText =
+error;
 
 });
