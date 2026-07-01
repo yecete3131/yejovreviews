@@ -34,3 +34,45 @@
 }
 
 }
+{
+
+"demo": {
+
+"name":"Demo Cafe Dubai",
+
+"tagline":"Best coffee experience ☕",
+
+"google":"https://google.com",
+
+"instagram":"https://instagram.com",
+
+"facebook":"https://facebook.com",
+
+"website":"https://example.com",
+
+"whatsapp":"https://wa.me/971500000000"
+
+},
+
+
+"dubaicafe": {
+
+
+"name":"Dubai Coffee House",
+
+"tagline":"Thank you for visiting ❤️",
+
+
+"google":"https://google.com",
+
+"instagram":"https://instagram.com",
+
+"facebook":"https://facebook.com",
+
+"website":"https://example.com",
+
+"whatsapp":"https://wa.me/971500000000"
+
+}
+
+}
