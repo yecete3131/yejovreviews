@@ -14,7 +14,10 @@ fetch("businesses.json")
 
 
 const b=data[business];
-
+if(!b){
+ document.getElementById("businessName").innerText="Business not found";
+ throw new Error("Business missing");
+}
 
 document.getElementById("businessName").innerHTML=b.name;
 
