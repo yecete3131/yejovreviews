@@ -233,7 +233,27 @@ onAuthStateChanged(auth, (user) => {
 
       if (page.includes("dashboard.html")) {
         loadBusinesses();
-      }
+      const deleteButtons = document.querySelectorAll(".delete-btn");
+
+deleteButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    const id = button.getAttribute("data-id");
+
+    const confirmDelete = confirm(
+      "Are you sure you want to delete " + id + "?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteDoc(doc(db, "businesses", id));
+      alert("Business deleted.");
+      loadBusinesses();
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+});
 
       if (page.includes("edit-business.html")) {
         loadBusinessForEdit();
