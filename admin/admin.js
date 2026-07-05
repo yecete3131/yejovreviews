@@ -165,20 +165,23 @@ async function loadBusinesses() {
     item.className = "business-item";
 
     item.innerHTML = `
-      <strong>${data.name || id}</strong>
-      <p>${id}</p>
+  <strong>${data.name || id}</strong>
+  <p>${id}</p>
 
-      <a target="_blank" href="${landingUrl}">
-        Open Landing Page
-      </a>
+  <a target="_blank" href="${landingUrl}">
+    Open Landing Page
+  </a>
 
-      <a href="edit-business.html?id=${id}">
-        Edit Business
-      </a>
+  <a href="edit-business.html?id=${id}">
+    Edit Business
+  </a>
 
-      <input value="${landingUrl}" readonly>
-    `;
+  <button class="delete-btn" data-id="${id}">
+    Delete Business
+  </button>
 
+  <input value="${landingUrl}" readonly>
+`;
     businessList.appendChild(item);
   });
 }
