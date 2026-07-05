@@ -1,10 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAwJiAAbzxFikzhwRDiVLt6vx0RSCiudcE",
@@ -18,11 +25,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userEmail = document.getElementById("userEmail");
 const statusText = document.getElementById("status");
+const saveBusinessBtn = document.getElementById("saveBusinessBtn");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
@@ -47,12 +56,60 @@ if (logoutBtn) {
   });
 }
 
+if (saveBusinessBtn) {
+  saveBusinessBtn.addEventListener("click", async () => {
+    const businessId = document.getElementById("businessId").value
+      .trim()
+      .toLowerCase()
+      .replaceAll(" ", "-");
+
+    if (!businessId) {
+      statusText.innerText = "Business ID is required.";
+      return;
+    }
+
+    const businessData = {
+      name: document.getElementById("name").value.trim(),
+      tagline: document.getElementById("tagline").value.trim(),
+      google: document.getElementById("google").value.trim(),
+      instagram: document.getElementById("instagram").value.trim(),
+      facebook: document.getElementById("facebook").value.trim(),
+      website: document.getElementById("website").value.trim(),
+      whatsapp: document.getElementById("whatsapp").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      location: document.getElementById("location").value.trim(),
+      logo: document.getElementById("logo").value.trim() || "assets/logo.png",
+      createdAt: new Date().toISOString()
+    };
+
+    statusText.innerText = "Saving...";
+
+    try {
+      await setDoc(doc(db, "businesses", businessId), businessData);
+
+      const landingUrl =
+        "https://yecete3131.github.io/yejovreviews/?business=" + businessId;
+
+      statusText.innerHTML =
+        "Saved successfully.<br><br>" +
+        "<a target='_blank' href='" + landingUrl + "'>" +
+        landingUrl +
+        "</a>";
+
+    } catch (error) {
+      statusText.innerText = error.message;
+    }
+  });
+}
+
 onAuthStateChanged(auth, (user) => {
   const page = window.location.pathname;
 
-  if (page.includes("dashboard.html")) {
+  if (page.includes("dashboard.html") || page.includes("add-business.html")) {
     if (user) {
-      userEmail.innerText = "Logged in as: " + user.email;
+      if (userEmail) {
+        userEmail.innerText = "Logged in as: " + user.email;
+      }
     } else {
       window.location.href = "login.html";
     }
