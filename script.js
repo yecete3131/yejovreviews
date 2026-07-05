@@ -1,54 +1,55 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAwJiAAbzxFikzhwRDiVLt6vx0RSCiudcE",
+  authDomain: "yejovreviews.firebaseapp.com",
+  projectId: "yejovreviews",
+  storageBucket: "yejovreviews.firebasestorage.app",
+  messagingSenderId: "967210094973",
+  appId: "1:967210094973:web:d4695c1634399d8efffc14",
+  measurementId: "G-8L8HJ9HJ3L"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const params = new URLSearchParams(window.location.search);
+const businessId = params.get("business") || "dubaicafe";
 
-const business = params.get("business");
+document.getElementById("businessName").innerText = "Loading...";
 
-document.getElementById("businessName").innerText =
-"Searching: " + business;
+async function loadBusiness() {
+  try {
+    const businessRef = doc(db, "businesses", businessId);
+    const businessSnap = await getDoc(businessRef);
 
+    if (!businessSnap.exists()) {
+      document.getElementById("businessName").innerText = "Business not found";
+      document.getElementById("tagline").innerText = businessId;
+      return;
+    }
 
-fetch("./businesses.json")
-.then(response => response.json())
-.then(data => {
+    const b = businessSnap.data();
 
-console.log("DATABASE:", data);
-console.log("REQUESTED:", business);
+    document.getElementById("businessName").innerText = b.name || "";
+    document.getElementById("tagline").innerText = b.tagline || "";
 
+    document.getElementById("google").href = b.google || "#";
+    document.getElementById("instagram").href = b.instagram || "#";
+    document.getElementById("facebook").href = b.facebook || "#";
+    document.getElementById("website").href = b.website || "#";
+    document.getElementById("whatsapp").href = b.whatsapp || "#";
 
-const b = data[business];
+    if (b.logo && document.getElementById("logo")) {
+      document.getElementById("logo").src = b.logo;
+    }
 
-
-if(!b){
-
-document.getElementById("businessName").innerText =
-"Business not found: " + business;
-
-return;
-
+  } catch (error) {
+    console.error(error);
+    document.getElementById("businessName").innerText = "Firebase error";
+    document.getElementById("tagline").innerText = error.message;
+  }
 }
 
-
-document.getElementById("businessName").innerText = b.name;
-
-document.getElementById("tagline").innerText = b.tagline;
-
-document.getElementById("google").href = b.google;
-
-document.getElementById("instagram").href = b.instagram;
-
-document.getElementById("facebook").href = b.facebook;
-
-document.getElementById("website").href = b.website;
-
-document.getElementById("whatsapp").href = b.whatsapp;
-
-
-})
-.catch(error=>{
-
-document.getElementById("businessName").innerText =
-"ERROR";
-
-document.getElementById("tagline").innerText =
-error;
-
-});
+loadBusiness();
