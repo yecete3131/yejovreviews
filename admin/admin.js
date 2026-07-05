@@ -10,7 +10,9 @@ import {
 import {
   getFirestore,
   doc,
-  setDoc
+  setDoc,
+  collection,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -32,6 +34,7 @@ const logoutBtn = document.getElementById("logoutBtn");
 const userEmail = document.getElementById("userEmail");
 const statusText = document.getElementById("status");
 const saveBusinessBtn = document.getElementById("saveBusinessBtn");
+const businessList = document.getElementById("businessList");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
@@ -102,6 +105,40 @@ if (saveBusinessBtn) {
   });
 }
 
+async function loadBusinesses() {
+  if (!businessList) return;
+
+  businessList.innerHTML = "Loading businesses...";
+
+  const querySnapshot = await getDocs(collection(db, "businesses"));
+
+  businessList.innerHTML = "";
+
+  querySnapshot.forEach((docSnap) => {
+    const id = docSnap.id;
+    const data = docSnap.data();
+
+    const landingUrl =
+      "https://yecete3131.github.io/yejovreviews/?business=" + id;
+
+    const item = document.createElement("div");
+    item.className = "business-item";
+
+    item.innerHTML = `
+      <strong>${data.name || id}</strong>
+      <p>${id}</p>
+
+      <a target="_blank" href="${landingUrl}">
+        Open Landing Page
+      </a>
+
+      <input value="${landingUrl}" readonly>
+    `;
+
+    businessList.appendChild(item);
+  });
+}
+
 onAuthStateChanged(auth, (user) => {
   const page = window.location.pathname;
 
@@ -110,6 +147,11 @@ onAuthStateChanged(auth, (user) => {
       if (userEmail) {
         userEmail.innerText = "Logged in as: " + user.email;
       }
+
+      if (page.includes("dashboard.html")) {
+        loadBusinesses();
+      }
+
     } else {
       window.location.href = "login.html";
     }
