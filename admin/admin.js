@@ -11,6 +11,7 @@ import {
   getFirestore,
   doc,
   setDoc,
+  getDoc,
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -34,7 +35,11 @@ const logoutBtn = document.getElementById("logoutBtn");
 const userEmail = document.getElementById("userEmail");
 const statusText = document.getElementById("status");
 const saveBusinessBtn = document.getElementById("saveBusinessBtn");
+const updateBusinessBtn = document.getElementById("updateBusinessBtn");
 const businessList = document.getElementById("businessList");
+
+const params = new URLSearchParams(window.location.search);
+const editId = params.get("id");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
@@ -71,19 +76,8 @@ if (saveBusinessBtn) {
       return;
     }
 
-    const businessData = {
-      name: document.getElementById("name").value.trim(),
-      tagline: document.getElementById("tagline").value.trim(),
-      google: document.getElementById("google").value.trim(),
-      instagram: document.getElementById("instagram").value.trim(),
-      facebook: document.getElementById("facebook").value.trim(),
-      website: document.getElementById("website").value.trim(),
-      whatsapp: document.getElementById("whatsapp").value.trim(),
-      phone: document.getElementById("phone").value.trim(),
-      location: document.getElementById("location").value.trim(),
-      logo: document.getElementById("logo").value.trim() || "assets/logo.png",
-      createdAt: new Date().toISOString()
-    };
+    const businessData = collectBusinessFormData();
+    businessData.createdAt = new Date().toISOString();
 
     statusText.innerText = "Saving...";
 
@@ -103,6 +97,51 @@ if (saveBusinessBtn) {
       statusText.innerText = error.message;
     }
   });
+}
+
+if (updateBusinessBtn) {
+  updateBusinessBtn.addEventListener("click", async () => {
+    if (!editId) {
+      statusText.innerText = "Missing business ID.";
+      return;
+    }
+
+    const businessData = collectBusinessFormData();
+    businessData.updatedAt = new Date().toISOString();
+
+    statusText.innerText = "Updating...";
+
+    try {
+      await setDoc(doc(db, "businesses", editId), businessData, { merge: true });
+
+      const landingUrl =
+        "https://yecete3131.github.io/yejovreviews/?business=" + editId;
+
+      statusText.innerHTML =
+        "Updated successfully.<br><br>" +
+        "<a target='_blank' href='" + landingUrl + "'>" +
+        landingUrl +
+        "</a>";
+
+    } catch (error) {
+      statusText.innerText = error.message;
+    }
+  });
+}
+
+function collectBusinessFormData() {
+  return {
+    name: document.getElementById("name").value.trim(),
+    tagline: document.getElementById("tagline").value.trim(),
+    google: document.getElementById("google").value.trim(),
+    instagram: document.getElementById("instagram").value.trim(),
+    facebook: document.getElementById("facebook").value.trim(),
+    website: document.getElementById("website").value.trim(),
+    whatsapp: document.getElementById("whatsapp").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    location: document.getElementById("location").value.trim(),
+    logo: document.getElementById("logo").value.trim() || "assets/logo.png"
+  };
 }
 
 async function loadBusinesses() {
@@ -132,6 +171,10 @@ async function loadBusinesses() {
         Open Landing Page
       </a>
 
+      <a href="edit-business.html?id=${id}">
+        Edit Business
+      </a>
+
       <input value="${landingUrl}" readonly>
     `;
 
@@ -139,10 +182,46 @@ async function loadBusinesses() {
   });
 }
 
+async function loadBusinessForEdit() {
+  if (!updateBusinessBtn || !editId) return;
+
+  document.getElementById("editBusinessId").innerText = editId;
+
+  try {
+    const businessRef = doc(db, "businesses", editId);
+    const businessSnap = await getDoc(businessRef);
+
+    if (!businessSnap.exists()) {
+      statusText.innerText = "Business not found.";
+      return;
+    }
+
+    const b = businessSnap.data();
+
+    document.getElementById("name").value = b.name || "";
+    document.getElementById("tagline").value = b.tagline || "";
+    document.getElementById("google").value = b.google || "";
+    document.getElementById("instagram").value = b.instagram || "";
+    document.getElementById("facebook").value = b.facebook || "";
+    document.getElementById("website").value = b.website || "";
+    document.getElementById("whatsapp").value = b.whatsapp || "";
+    document.getElementById("phone").value = b.phone || "";
+    document.getElementById("location").value = b.location || "";
+    document.getElementById("logo").value = b.logo || "";
+
+  } catch (error) {
+    statusText.innerText = error.message;
+  }
+}
+
 onAuthStateChanged(auth, (user) => {
   const page = window.location.pathname;
 
-  if (page.includes("dashboard.html") || page.includes("add-business.html")) {
+  if (
+    page.includes("dashboard.html") ||
+    page.includes("add-business.html") ||
+    page.includes("edit-business.html")
+  ) {
     if (user) {
       if (userEmail) {
         userEmail.innerText = "Logged in as: " + user.email;
@@ -150,6 +229,10 @@ onAuthStateChanged(auth, (user) => {
 
       if (page.includes("dashboard.html")) {
         loadBusinesses();
+      }
+
+      if (page.includes("edit-business.html")) {
+        loadBusinessForEdit();
       }
 
     } else {
