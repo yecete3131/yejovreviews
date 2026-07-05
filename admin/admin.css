@@ -84,3 +84,7 @@ h2 {
   font-size: 13px;
   background: white;
 }
+.delete-btn {
+  background: #b00020;
+  margin-bottom: 10px;
+}
