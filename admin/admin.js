@@ -44,14 +44,19 @@ const editId = params.get("id");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", async () => {
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+
+    if (!email || !password) {
+      statusText.innerText = "Email and password are required.";
+      return;
+    }
 
     statusText.innerText = "Logging in...";
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html";
+      window.location.href = "dashboard.html?v=6";
     } catch (error) {
       statusText.innerText = error.message;
     }
@@ -61,7 +66,7 @@ if (loginBtn) {
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "login.html";
+    window.location.href = "login.html?v=6";
   });
 }
 
@@ -150,40 +155,68 @@ async function loadBusinesses() {
 
   businessList.innerHTML = "Loading businesses...";
 
-  const querySnapshot = await getDocs(collection(db, "businesses"));
+  try {
+    const querySnapshot = await getDocs(collection(db, "businesses"));
 
-  businessList.innerHTML = "";
+    businessList.innerHTML = "";
 
-  querySnapshot.forEach((docSnap) => {
-    const id = docSnap.id;
-    const data = docSnap.data();
+    querySnapshot.forEach((docSnap) => {
+      const id = docSnap.id;
+      const data = docSnap.data();
 
-    const landingUrl =
-      "https://yecete3131.github.io/yejovreviews/?business=" + id;
+      const landingUrl =
+        "https://yecete3131.github.io/yejovreviews/?business=" + id;
 
-    const item = document.createElement("div");
-    item.className = "business-item";
+      const item = document.createElement("div");
+      item.className = "business-item";
 
-    item.innerHTML = `
-  <strong>${data.name || id}</strong>
-  <p>${id}</p>
+      item.innerHTML = `
+        <strong>${data.name || id}</strong>
+        <p>${id}</p>
 
-  <a target="_blank" href="${landingUrl}">
-    Open Landing Page
-  </a>
+        <a target="_blank" href="${landingUrl}">
+          Open Landing Page
+        </a>
 
-  <a href="edit-business.html?id=${id}">
-    Edit Business
-  </a>
+        <a href="edit-business.html?id=${id}">
+          Edit Business
+        </a>
 
-  <button class="delete-btn" data-id="${id}">
-    Delete Business
-  </button>
+        <button class="delete-btn" data-id="${id}">
+          Delete Business
+        </button>
 
-  <input value="${landingUrl}" readonly>
-`;
-    businessList.appendChild(item);
-  });
+        <input value="${landingUrl}" readonly>
+      `;
+
+      businessList.appendChild(item);
+    });
+
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.getAttribute("data-id");
+
+        const confirmDelete = confirm(
+          "Are you sure you want to delete " + id + "?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+          await deleteDoc(doc(db, "businesses", id));
+          alert("Business deleted.");
+          loadBusinesses();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    });
+
+  } catch (error) {
+    businessList.innerHTML = error.message;
+  }
 }
 
 async function loadBusinessForEdit() {
@@ -233,34 +266,14 @@ onAuthStateChanged(auth, (user) => {
 
       if (page.includes("dashboard.html")) {
         loadBusinesses();
-      const deleteButtons = document.querySelectorAll(".delete-btn");
-
-deleteButtons.forEach((button) => {
-  button.addEventListener("click", async () => {
-    const id = button.getAttribute("data-id");
-
-    const confirmDelete = confirm(
-      "Are you sure you want to delete " + id + "?"
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      await deleteDoc(doc(db, "businesses", id));
-      alert("Business deleted.");
-      loadBusinesses();
-    } catch (error) {
-      alert(error.message);
-    }
-  });
-});
+      }
 
       if (page.includes("edit-business.html")) {
         loadBusinessForEdit();
       }
 
     } else {
-      window.location.href = "login.html";
+      window.location.href = "login.html?v=6";
     }
   }
 });
