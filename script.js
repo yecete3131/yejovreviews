@@ -17,8 +17,6 @@ const db = getFirestore(app);
 const params = new URLSearchParams(window.location.search);
 const businessId = params.get("business") || "dubaicafe";
 
-document.getElementById("businessName").innerText = "Loading...";
-
 async function loadBusiness() {
   try {
     const businessRef = doc(db, "businesses", businessId);
@@ -35,13 +33,20 @@ async function loadBusiness() {
     document.getElementById("businessName").innerText = b.name || "";
     document.getElementById("tagline").innerText = b.tagline || "";
 
-    document.getElementById("google").href = b.google || "#";
-    document.getElementById("instagram").href = b.instagram || "#";
-    document.getElementById("facebook").href = b.facebook || "#";
-    document.getElementById("website").href = b.website || "#";
-    document.getElementById("whatsapp").href = b.whatsapp || "#";
+    setButton("google", b.google);
+    setButton("instagram", b.instagram);
+    setButton("facebook", b.facebook);
+    setButton("website", b.website);
+    setButton("whatsapp", b.whatsapp);
+    setButton("location", b.location);
 
-    if (b.logo && document.getElementById("logo")) {
+    if (b.phone) {
+      document.getElementById("phone").href = "tel:" + b.phone;
+    } else {
+      document.getElementById("phone").style.display = "none";
+    }
+
+    if (b.logo) {
       document.getElementById("logo").src = b.logo;
     }
 
@@ -49,6 +54,16 @@ async function loadBusiness() {
     console.error(error);
     document.getElementById("businessName").innerText = "Firebase error";
     document.getElementById("tagline").innerText = error.message;
+  }
+}
+
+function setButton(id, url) {
+  const button = document.getElementById(id);
+
+  if (url && url.length > 5) {
+    button.href = url;
+  } else {
+    button.style.display = "none";
   }
 }
 
