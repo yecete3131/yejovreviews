@@ -88,3 +88,21 @@ h2 {
   background: #b00020;
   margin-bottom: 10px;
 }
+.business-id {
+  font-size: 13px;
+  color: #777;
+  margin: 6px 0 12px;
+}
+
+.copy-btn {
+  background: #333;
+  margin-bottom: 10px;
+}
+
+.business-item strong {
+  font-size: 18px;
+}
+
+.business-item input {
+  margin-bottom: 10px;
+}
