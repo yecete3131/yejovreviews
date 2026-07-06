@@ -31,6 +31,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const BASE_URL = "https://yejovreview.com/?business=";
+
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userEmail = document.getElementById("userEmail");
@@ -56,7 +58,7 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html?v=6";
+      window.location.href = "dashboard.html?v=8";
     } catch (error) {
       statusText.innerText = error.message;
     }
@@ -66,7 +68,7 @@ if (loginBtn) {
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "login.html?v=6";
+    window.location.href = "login.html?v=8";
   });
 }
 
@@ -90,8 +92,7 @@ if (saveBusinessBtn) {
     try {
       await setDoc(doc(db, "businesses", businessId), businessData);
 
-      const landingUrl =
-       "https://yejovreview.com/?business=" + businessId;
+      const landingUrl = BASE_URL + businessId;
 
       statusText.innerHTML =
         "Saved successfully.<br><br>" +
@@ -120,8 +121,7 @@ if (updateBusinessBtn) {
     try {
       await setDoc(doc(db, "businesses", editId), businessData, { merge: true });
 
-      const landingUrl =
-        "https://yejovreview.com/?business=" + editId;
+      const landingUrl = BASE_URL + editId;
 
       statusText.innerHTML =
         "Updated successfully.<br><br>" +
@@ -164,15 +164,20 @@ async function loadBusinesses() {
       const id = docSnap.id;
       const data = docSnap.data();
 
-      const landingUrl =
-        "https://yejovreview.com/?business=" + id;
+      const landingUrl = BASE_URL + id;
 
       const item = document.createElement("div");
       item.className = "business-item";
 
       item.innerHTML = `
         <strong>${data.name || id}</strong>
-        <p>${id}</p>
+        <p class="business-id">Business ID: ${id}</p>
+
+        <input value="${landingUrl}" readonly>
+
+        <button class="copy-btn" data-url="${landingUrl}">
+          Copy Link
+        </button>
 
         <a target="_blank" href="${landingUrl}">
           Open Landing Page
@@ -185,11 +190,27 @@ async function loadBusinesses() {
         <button class="delete-btn" data-id="${id}">
           Delete Business
         </button>
-
-        <input value="${landingUrl}" readonly>
       `;
 
       businessList.appendChild(item);
+    });
+
+    const copyButtons = document.querySelectorAll(".copy-btn");
+
+    copyButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const url = button.getAttribute("data-url");
+
+        try {
+          await navigator.clipboard.writeText(url);
+          button.innerText = "Copied!";
+          setTimeout(() => {
+            button.innerText = "Copy Link";
+          }, 1500);
+        } catch (error) {
+          alert("Copy failed. You can manually copy the link.");
+        }
+      });
     });
 
     const deleteButtons = document.querySelectorAll(".delete-btn");
@@ -273,7 +294,7 @@ onAuthStateChanged(auth, (user) => {
       }
 
     } else {
-      window.location.href = "login.html?v=6";
+      window.location.href = "login.html?v=8";
     }
   }
 });
