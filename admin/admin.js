@@ -91,7 +91,7 @@ if (saveBusinessBtn) {
       await setDoc(doc(db, "businesses", businessId), businessData);
 
       const landingUrl =
-        "https://yecete3131.github.io/yejovreviews/?business=" + businessId;
+       "https://yejovreview.com/?business=" + businessId;
 
       statusText.innerHTML =
         "Saved successfully.<br><br>" +
@@ -121,7 +121,7 @@ if (updateBusinessBtn) {
       await setDoc(doc(db, "businesses", editId), businessData, { merge: true });
 
       const landingUrl =
-        "https://yecete3131.github.io/yejovreviews/?business=" + editId;
+        "https://yejovreview.com/?business=" + editId;
 
       statusText.innerHTML =
         "Updated successfully.<br><br>" +
@@ -165,7 +165,7 @@ async function loadBusinesses() {
       const data = docSnap.data();
 
       const landingUrl =
-        "https://yecete3131.github.io/yejovreviews/?business=" + id;
+        "https://yejovreview.com/?business=" + id;
 
       const item = document.createElement("div");
       item.className = "business-item";
