@@ -169,11 +169,7 @@ async function loadBusinesses() {
       const item = document.createElement("div");
       item.className = "business-item";
 
-      const qrUrl =
-  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-  encodeURIComponent(landingUrl);
-
-item.innerHTML = `
+      item.innerHTML = `
   <strong>${data.name || id}</strong>
   <p class="business-id">Business ID: ${id}</p>
 
@@ -186,14 +182,6 @@ item.innerHTML = `
   <a target="_blank" href="${landingUrl}">
     Open Landing Page
   </a>
-
-  <a target="_blank" href="${qrUrl}">
-    Open QR Code
-  </a>
-
-  <div class="qr-box">
-    <img src="${qrUrl}" alt="QR Code">
-  </div>
 
   <a href="edit-business.html?id=${id}">
     Edit Business
