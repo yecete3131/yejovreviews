@@ -169,28 +169,40 @@ async function loadBusinesses() {
       const item = document.createElement("div");
       item.className = "business-item";
 
-      item.innerHTML = `
-        <strong>${data.name || id}</strong>
-        <p class="business-id">Business ID: ${id}</p>
+      const qrUrl =
+  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+  encodeURIComponent(landingUrl);
 
-        <input value="${landingUrl}" readonly>
+item.innerHTML = `
+  <strong>${data.name || id}</strong>
+  <p class="business-id">Business ID: ${id}</p>
 
-        <button class="copy-btn" data-url="${landingUrl}">
-          Copy Link
-        </button>
+  <input value="${landingUrl}" readonly>
 
-        <a target="_blank" href="${landingUrl}">
-          Open Landing Page
-        </a>
+  <button class="copy-btn" data-url="${landingUrl}">
+    Copy Link
+  </button>
 
-        <a href="edit-business.html?id=${id}">
-          Edit Business
-        </a>
+  <a target="_blank" href="${landingUrl}">
+    Open Landing Page
+  </a>
 
-        <button class="delete-btn" data-id="${id}">
-          Delete Business
-        </button>
-      `;
+  <a target="_blank" href="${qrUrl}">
+    Open QR Code
+  </a>
+
+  <div class="qr-box">
+    <img src="${qrUrl}" alt="QR Code">
+  </div>
+
+  <a href="edit-business.html?id=${id}">
+    Edit Business
+  </a>
+
+  <button class="delete-btn" data-id="${id}">
+    Delete Business
+  </button>
+`;
 
       businessList.appendChild(item);
     });
