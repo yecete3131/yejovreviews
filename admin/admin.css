@@ -106,16 +106,3 @@ h2 {
 .business-item input {
   margin-bottom: 10px;
 }
-.qr-box {
-  background: white;
-  padding: 14px;
-  margin: 12px 0;
-  border-radius: 14px;
-  text-align: center;
-  border: 1px solid #e5e5e5;
-}
-
-.qr-box img {
-  width: 160px;
-  height: 160px;
-}
