@@ -106,3 +106,31 @@ h2 {
 .business-item input {
   margin-bottom: 10px;
 }
+.analytics-box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.analytics-box div {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+.analytics-box span {
+  display: block;
+  font-size: 22px;
+  font-weight: bold;
+  color: #111;
+}
+
+.analytics-box small {
+  display: block;
+  margin-top: 4px;
+  color: #777;
+  font-size: 12px;
+}
