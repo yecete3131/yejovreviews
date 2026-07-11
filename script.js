@@ -1,5 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  increment,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAwJiAAbzxFikzhwRDiVLt6vx0RSCiudcE",
@@ -15,7 +23,24 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const params = new URLSearchParams(window.location.search);
-const businessId = params.get("business") || "dubaicafe";
+const businessId = params.get("business") || "tuluacoffee";
+
+async function track(metric) {
+  try {
+    const analyticsRef = doc(db, "analytics", businessId);
+
+    await setDoc(
+      analyticsRef,
+      {
+        [metric]: increment(1),
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+  } catch (error) {
+    console.log("Analytics error:", error);
+  }
+}
 
 async function loadBusiness() {
   try {
@@ -33,22 +58,29 @@ async function loadBusiness() {
     document.getElementById("businessName").innerText = b.name || "";
     document.getElementById("tagline").innerText = b.tagline || "";
 
-    setButton("google", b.google);
-    setButton("instagram", b.instagram);
-    setButton("facebook", b.facebook);
-    setButton("website", b.website);
-    setButton("whatsapp", b.whatsapp);
-    setButton("location", b.location);
-
-    if (b.phone) {
-      document.getElementById("phone").href = "tel:" + b.phone;
-    } else {
-      document.getElementById("phone").style.display = "none";
-    }
-
     if (b.logo) {
       document.getElementById("logo").src = b.logo;
     }
+
+    setButton("google", b.google, "googleClicks");
+    setButton("instagram", b.instagram, "instagramClicks");
+    setButton("facebook", b.facebook, "facebookClicks");
+    setButton("website", b.website, "websiteClicks");
+    setButton("whatsapp", b.whatsapp, "whatsappClicks");
+    setButton("location", b.location, "locationClicks");
+
+    const phoneButton = document.getElementById("phone");
+
+    if (b.phone) {
+      phoneButton.href = "tel:" + b.phone;
+      phoneButton.addEventListener("click", () => {
+        track("phoneClicks");
+      });
+    } else {
+      phoneButton.style.display = "none";
+    }
+
+    track("pageViews");
 
   } catch (error) {
     console.error(error);
@@ -57,11 +89,16 @@ async function loadBusiness() {
   }
 }
 
-function setButton(id, url) {
+function setButton(id, url, metric) {
   const button = document.getElementById(id);
 
   if (url && url.length > 5) {
     button.href = url;
+
+    button.addEventListener("click", () => {
+      track(metric);
+    });
+
   } else {
     button.style.display = "none";
   }
