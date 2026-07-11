@@ -58,7 +58,7 @@ if (loginBtn) {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "dashboard.html?v=8";
+      window.location.href = "dashboard.html?v=11";
     } catch (error) {
       statusText.innerText = error.message;
     }
@@ -68,7 +68,7 @@ if (loginBtn) {
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "login.html?v=8";
+    window.location.href = "login.html?v=11";
   });
 }
 
@@ -160,40 +160,83 @@ async function loadBusinesses() {
 
     businessList.innerHTML = "";
 
-    querySnapshot.forEach((docSnap) => {
+    for (const docSnap of querySnapshot.docs) {
       const id = docSnap.id;
       const data = docSnap.data();
 
       const landingUrl = BASE_URL + id;
 
+      let analytics = {};
+
+      try {
+        const analyticsSnap = await getDoc(doc(db, "analytics", id));
+        if (analyticsSnap.exists()) {
+          analytics = analyticsSnap.data();
+        }
+      } catch (error) {
+        console.log("Analytics load error:", error);
+      }
+
       const item = document.createElement("div");
       item.className = "business-item";
 
       item.innerHTML = `
-  <strong>${data.name || id}</strong>
-  <p class="business-id">Business ID: ${id}</p>
+        <strong>${data.name || id}</strong>
+        <p class="business-id">Business ID: ${id}</p>
 
-  <input value="${landingUrl}" readonly>
+        <div class="analytics-box">
+          <div>
+            <span>${analytics.pageViews || 0}</span>
+            <small>Views</small>
+          </div>
 
-  <button class="copy-btn" data-url="${landingUrl}">
-    Copy Link
-  </button>
+          <div>
+            <span>${analytics.googleClicks || 0}</span>
+            <small>Google</small>
+          </div>
 
-  <a target="_blank" href="${landingUrl}">
-    Open Landing Page
-  </a>
+          <div>
+            <span>${analytics.instagramClicks || 0}</span>
+            <small>Instagram</small>
+          </div>
 
-  <a href="edit-business.html?id=${id}">
-    Edit Business
-  </a>
+          <div>
+            <span>${analytics.whatsappClicks || 0}</span>
+            <small>WhatsApp</small>
+          </div>
 
-  <button class="delete-btn" data-id="${id}">
-    Delete Business
-  </button>
-`;
+          <div>
+            <span>${analytics.phoneClicks || 0}</span>
+            <small>Calls</small>
+          </div>
+
+          <div>
+            <span>${analytics.locationClicks || 0}</span>
+            <small>Directions</small>
+          </div>
+        </div>
+
+        <input value="${landingUrl}" readonly>
+
+        <button class="copy-btn" data-url="${landingUrl}">
+          Copy Link
+        </button>
+
+        <a target="_blank" href="${landingUrl}">
+          Open Landing Page
+        </a>
+
+        <a href="edit-business.html?id=${id}">
+          Edit Business
+        </a>
+
+        <button class="delete-btn" data-id="${id}">
+          Delete Business
+        </button>
+      `;
 
       businessList.appendChild(item);
-    });
+    }
 
     const copyButtons = document.querySelectorAll(".copy-btn");
 
@@ -294,7 +337,7 @@ onAuthStateChanged(auth, (user) => {
       }
 
     } else {
-      window.location.href = "login.html?v=8";
+      window.location.href = "login.html?v=11";
     }
   }
 });
