@@ -28,8 +28,7 @@ const app = initializeApp(firebaseConfig);
 
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
-    "BURAYA_SITE_KEY"
-  ),
+6LcgOlstAAAAAL1hQeLmar-noemiegooLRuu8Fu6  ),
   isTokenAutoRefreshEnabled: true
 });
 
