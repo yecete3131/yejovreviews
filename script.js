@@ -1,6 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 
 import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app-check.js";
+
+import {
   getFirestore,
   doc,
   getDoc,
@@ -20,6 +25,14 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(
+    "BURAYA_SITE_KEY"
+  ),
+  isTokenAutoRefreshEnabled: true
+});
+
 const db = getFirestore(app);
 
 const params = new URLSearchParams(window.location.search);
@@ -48,15 +61,22 @@ async function loadBusiness() {
     const businessSnap = await getDoc(businessRef);
 
     if (!businessSnap.exists()) {
-      document.getElementById("businessName").innerText = "Business not found";
-      document.getElementById("tagline").innerText = businessId;
+      document.getElementById("businessName").innerText =
+        "Business not found";
+
+      document.getElementById("tagline").innerText =
+        businessId;
+
       return;
     }
 
     const b = businessSnap.data();
 
-    document.getElementById("businessName").innerText = b.name || "";
-    document.getElementById("tagline").innerText = b.tagline || "";
+    document.getElementById("businessName").innerText =
+      b.name || "";
+
+    document.getElementById("tagline").innerText =
+      b.tagline || "";
 
     if (b.logo) {
       document.getElementById("logo").src = b.logo;
@@ -73,6 +93,7 @@ async function loadBusiness() {
 
     if (b.phone) {
       phoneButton.href = "tel:" + b.phone;
+
       phoneButton.addEventListener("click", () => {
         track("phoneClicks");
       });
@@ -83,9 +104,13 @@ async function loadBusiness() {
     track("pageViews");
 
   } catch (error) {
-    console.error(error);
-    document.getElementById("businessName").innerText = "Firebase error";
-    document.getElementById("tagline").innerText = error.message;
+    console.error("Landing page error:", error);
+
+    document.getElementById("businessName").innerText =
+      "Firebase error";
+
+    document.getElementById("tagline").innerText =
+      error.message;
   }
 }
 
@@ -98,7 +123,6 @@ function setButton(id, url, metric) {
     button.addEventListener("click", () => {
       track(metric);
     });
-
   } else {
     button.style.display = "none";
   }
