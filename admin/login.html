@@ -1,23 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>YeJovReviews Admin Login</title>
-  <link rel="stylesheet" href="admin.css?v=1">
+
+  <link
+    rel="stylesheet"
+    href="./admin.css?v=19"
+  >
 </head>
 
 <body>
 
   <div class="admin-card">
+
     <h1>YeJovReviews</h1>
     <p>Admin Login</p>
 
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
+    <form id="loginForm">
 
-    <button id="loginBtn">Login</button>
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+        autocomplete="email"
+        required
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+        required
+      >
+
+      <button
+        id="loginBtn"
+        type="submit"
+      >
+        Sign in
+      </button>
+
+    </form>
 
     <p id="status"></p>
+
   </div>
 
-<script type="module" src="./admin.js?v=18"></script>
+  <script type="module">
+
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+
+    import {
+      getAuth,
+      setPersistence,
+      browserLocalPersistence,
+      signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAwJiAAbzxFikzhwRDiVLt6vx0RSCiudcE",
+      authDomain: "yejovreviews.firebaseapp.com",
+      projectId: "yejovreviews",
+      storageBucket: "yejovreviews.firebasestorage.app",
+      messagingSenderId: "967210094973",
+      appId: "1:967210094973:web:d4695c1634399d8efffc14",
+      measurementId: "G-8L8HJ9HJ3L"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const loginForm = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const statusText = document.getElementById("status");
+
+
+    loginForm.addEventListener("submit", async (event) => {
+
+      event.preventDefault();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+
+      if (!email || !password) {
+        statusText.textContent =
+          "Email and password are required.";
+
+        return;
+      }
+
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Signing in...";
+      statusText.textContent = "";
+
+
+      try {
+
+        await setPersistence(
+          auth,
+          browserLocalPersistence
+        );
+
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        statusText.textContent = "Login successful.";
+
+        window.location.replace(
+          "./dashboard.html?v=19"
+        );
+
+      } catch (error) {
+
+        console.error("Login error:", error);
+
+        statusText.textContent =
+          `${error.code || "login-error"}: ${error.message}`;
+
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Sign in";
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
